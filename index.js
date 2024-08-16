@@ -32,7 +32,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
         const productCollection = client.db('athletesChoice').collection('products');
 
@@ -74,7 +74,7 @@ async function run() {
                 productName: { $regex: productName, $options: 'i' }
             }
 
-            const result = await productCollection.find(query).toArray();
+            const result = await productCollection.find(query).sort({ productName: 1 }).toArray();
 
             if (result.length === 0) {
                 return res.send({ message: 0 })
