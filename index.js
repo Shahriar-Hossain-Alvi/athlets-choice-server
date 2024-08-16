@@ -7,7 +7,13 @@ const port = process.env.PORT || 5000;
 
 //middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: [
+        "http://localhost:5173",
+        "https://athletes-choice-919e3.web.app",
+        "https://athletes-choice-919e3.firebaseapp.com"
+    ]
+}));
 
 
 
@@ -30,7 +36,7 @@ async function run() {
 
         const productCollection = client.db('athletesChoice').collection('products');
 
-        // get all products
+        // get all products by sort option
         app.get('/allProducts', async (req, res) => {
             const { sortOption } = req.query;
 
@@ -46,13 +52,11 @@ async function run() {
                 return res.send(result);
             }
 
-
             if (sortOption === 'Price low to high') {
                 const result = await productCollection.find().sort({ price: 1 }).toArray();
 
                 return res.send(result);
             }
-
 
             if (sortOption === 'Price high to low') {
                 const result = await productCollection.find().sort({ price: -1 }).toArray();
