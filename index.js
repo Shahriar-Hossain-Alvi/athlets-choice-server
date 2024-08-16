@@ -30,12 +30,25 @@ async function run() {
 
         const productCollection = client.db('athletesChoice').collection('products');
 
-        app.get('/products', async (req, res) => {
+        // get all products
+        app.get('/allProducts', async (req, res) => {
             const result = await productCollection.find().toArray();
 
             res.send(result);
         })
 
+
+        // get searched products
+        app.get('/searchProduct', async (req, res) => {
+            const { productName } = req.query;
+            const query = {
+                productName: { $regex: productName, $options: 'i' }
+            }
+
+            const result = await productCollection.find(query).toArray();
+
+            res.send(result);
+        })
 
 
         // Send a ping to confirm a successful connection
