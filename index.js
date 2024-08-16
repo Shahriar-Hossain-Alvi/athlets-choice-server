@@ -32,9 +32,34 @@ async function run() {
 
         // get all products
         app.get('/allProducts', async (req, res) => {
-            const result = await productCollection.find().toArray();
+            const { sortOption } = req.query;
 
-            res.send(result);
+            if (sortOption === 'Name') {
+                const result = await productCollection.find().sort({ productName: 1 }).toArray();
+
+                return res.send(result);
+            }
+
+            if (sortOption === 'Newest Added') {
+                const result = await productCollection.find().sort({ dateAdded: -1 }).toArray();
+
+                return res.send(result);
+            }
+
+
+            if (sortOption === 'Price low to high') {
+                const result = await productCollection.find().sort({ price: 1 }).toArray();
+
+                return res.send(result);
+            }
+
+
+            if (sortOption === 'Price high to low') {
+                const result = await productCollection.find().sort({ price: -1 }).toArray();
+
+                return res.send(result);
+            }
+
         })
 
 
@@ -47,9 +72,47 @@ async function run() {
 
             const result = await productCollection.find(query).toArray();
 
+            if (result.length === 0) {
+                return res.send({ message: 0 })
+            }
+
             res.send(result);
         })
 
+
+        // get all the category names
+        app.get('/categoryNames', async (req, res) => {
+            const categories = await productCollection.aggregate([
+                {
+                    $group: {
+                        _id: "$categoryName"
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        categoryName: "$_id"
+                    }
+                }
+            ]).toArray();
+            // Extract category names into an array
+            const categoryNames = categories.map(cat => cat.categoryName);
+
+            res.send(categoryNames);
+        })
+
+
+        // get products by category
+        app.get('/filterByCategory', async (req, res) => {
+            const { categoryName } = req.query;
+            const query = {
+                categoryName: categoryName
+            }
+
+            const result = await productCollection.find(query).toArray();
+
+            res.send(result);
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
