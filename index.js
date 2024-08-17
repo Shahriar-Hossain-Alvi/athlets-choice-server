@@ -38,28 +38,32 @@ async function run() {
 
         // get all products by sort option
         app.get('/allProducts', async (req, res) => {
-            const { sortOption } = req.query;
+            const { sortOption, page, size } = req.query;
+
+            const pageNumber = parseInt(page);
+            const productShowPerPage = parseInt(size);
+
 
             if (sortOption === 'Name') {
-                const result = await productCollection.find().sort({ productName: 1 }).toArray();
+                const result = await productCollection.find().sort({ productName: 1 }).skip(pageNumber * productShowPerPage).limit(productShowPerPage).toArray();
 
                 return res.send(result);
             }
 
             if (sortOption === 'Newest Added') {
-                const result = await productCollection.find().sort({ dateAdded: -1 }).toArray();
+                const result = await productCollection.find().sort({ dateAdded: -1 }).skip(pageNumber * productShowPerPage).limit(productShowPerPage).toArray();
 
                 return res.send(result);
             }
 
             if (sortOption === 'Price low to high') {
-                const result = await productCollection.find().sort({ price: 1 }).toArray();
+                const result = await productCollection.find().sort({ price: 1 }).skip(pageNumber * productShowPerPage).limit(productShowPerPage).toArray();
 
                 return res.send(result);
             }
 
             if (sortOption === 'Price high to low') {
-                const result = await productCollection.find().sort({ price: -1 }).toArray();
+                const result = await productCollection.find().sort({ price: -1 }).skip(pageNumber * productShowPerPage).limit(productShowPerPage).toArray();
 
                 return res.send(result);
             }
@@ -175,7 +179,7 @@ async function run() {
         // get total number of products
         app.get("/productCount", async (req, res) => {
             const count = await productCollection.countDocuments();
-            
+
             res.send({ count });
         })
 
