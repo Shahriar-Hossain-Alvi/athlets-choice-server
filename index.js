@@ -106,8 +106,8 @@ async function run() {
         })
 
 
-         // get all the brand names
-         app.get('/brandNames', async (req, res) => {
+        // get all the brand names
+        app.get('/brandNames', async (req, res) => {
             const brands = await productCollection.aggregate([
                 {
                     $group: {
@@ -149,6 +149,24 @@ async function run() {
             }
 
             const result = await productCollection.find(query).toArray();
+
+            res.send(result);
+        })
+
+        // get products by price range
+        app.get("/filterByPrice", async (req, res) => {
+            const { minPrice, maxPrice } = req.query;
+
+            const minimumPrice = parseInt(minPrice);
+            const maximumPrice = parseInt(maxPrice);
+
+            const query = {
+                price: {
+                    $lte: maximumPrice, $gte: minimumPrice
+                }
+            }
+
+            const result = await productCollection.find(query).sort({ price: 1 }).toArray();
 
             res.send(result);
         })
