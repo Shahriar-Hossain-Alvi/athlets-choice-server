@@ -106,6 +106,28 @@ async function run() {
         })
 
 
+         // get all the brand names
+         app.get('/brandNames', async (req, res) => {
+            const brands = await productCollection.aggregate([
+                {
+                    $group: {
+                        _id: "$brandName"
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        brandName: "$_id"
+                    }
+                }
+            ]).toArray();
+            // Extract category names into an array
+            const brandNames = brands.map(brand => brand.brandName);
+
+            res.send(brandNames);
+        })
+
+
         // get products by category
         app.get('/filterByCategory', async (req, res) => {
             const { categoryName } = req.query;
@@ -117,6 +139,20 @@ async function run() {
 
             res.send(result);
         })
+
+
+        // get products by brand
+        app.get('/filterByBrand', async (req, res) => {
+            const { brandName } = req.query;
+            const query = {
+                brandName: brandName
+            }
+
+            const result = await productCollection.find(query).toArray();
+
+            res.send(result);
+        })
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
